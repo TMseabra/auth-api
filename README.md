@@ -1,70 +1,70 @@
 # auth-api
 
-API de autenticação segura em Go: registo, login, JWT com refresh token e papéis (`user` e `admin`). Primeiro construída, depois atacada e protegida.
+Secure authentication API in Go: registration, login, JWT with refresh tokens and roles (`user` and `admin`). First built, then attacked and hardened.
 
-> Estado: em desenvolvimento (projeto de portefólio).
+> Status: work in progress (portfolio project).
 
-## Objetivo
+## Goal
 
-Construir um serviço de identidade completo e depois protegê-lo, documentando cada decisão de segurança. A história do projeto é "construí e depois protegi".
+Build a complete identity service and then secure it, documenting every security decision. The story of the project is "I built it, then I secured it".
 
 ## Stack
 
-- Go (net/http ou chi)
-- PostgreSQL (pgx e golang-migrate), em Docker
-- argon2id para as palavras-passe
+- Go (net/http or chi)
+- PostgreSQL (pgx and golang-migrate), running in Docker
+- argon2id for password hashing
 - JWT (golang-jwt/jwt v5)
-- GitHub Actions, Dependabot, Trivy e OWASP ZAP
+- GitHub Actions, Dependabot, Trivy and OWASP ZAP
 
-## Funcionalidades previstas
+## Planned features
 
-- Registo e login com palavras-passe guardadas com argon2id
-- JWT de acesso com expiração curta (15 min) e refresh token com rotação
-- Papéis `user` e `admin`, com rotas protegidas por middleware
-- Rate limiting no login e mensagens de erro genéricas
+- Registration and login with argon2id password hashing
+- Short-lived access JWT (15 min) and refresh tokens with rotation
+- `user` and `admin` roles, with routes protected by middleware
+- Login rate limiting and generic error messages
 
-## Rotas previstas
+## Planned routes
 
-- GET /healthz (público)
-- POST /auth/register (público)
-- POST /auth/login (público)
+- GET /healthz (public)
+- POST /auth/register (public)
+- POST /auth/login (public)
 - POST /auth/refresh (refresh token)
-- POST /auth/logout (autenticado)
-- GET /me (user ou admin)
-- GET /admin/users (só admin)
-- PATCH /admin/users/{id}/role (só admin)
+- POST /auth/logout (authenticated)
+- GET /me (user or admin)
+- GET /admin/users (admin only)
+- PATCH /admin/users/{id}/role (admin only)
 
-## Plano
+## Plan
 
-### Parte 1: Construir
+### Part 1: Build
 
-1. Módulo Go e endpoint /healthz
-2. Configuração por variáveis de ambiente e docker-compose com PostgreSQL
-3. Migrações das tabelas users e refresh_tokens
-4. Registo com argon2id e validação de input
-5. Login com JWT de acesso
-6. Refresh token com rotação e logout
-7. Middleware de autenticação e de papéis
-8. Testes unitários e de integração
-9. Rate limiting no login
+1. Go module and /healthz endpoint
+2. Environment-based config and docker-compose with PostgreSQL
+3. Migrations for the users and refresh_tokens tables
+4. Registration with argon2id and input validation
+5. Login with access JWT
+6. Refresh token rotation and logout
+7. Authentication and role middleware
+8. Unit and integration tests
+9. Login rate limiting
 
-### Parte 2: Proteger
+### Part 2: Secure
 
-10. Dockerfile multi-stage com imagem distroless e utilizador non-root
-11. Dependabot (gomod, docker e github-actions)
-12. Pipeline no GitHub Actions: testes, build da imagem e Trivy a falhar em vulnerabilidades HIGH e CRITICAL
-13. Relatório inicial do OWASP ZAP
-14. Correções, um commit por problema, e relatório final do ZAP
-15. Diagrama do fluxo de login e secção "Decisões de segurança"
+10. Multi-stage Dockerfile with a distroless image and a non-root user
+11. Dependabot (gomod, docker and github-actions)
+12. GitHub Actions pipeline: tests, image build and Trivy failing on HIGH and CRITICAL vulnerabilities
+13. Initial OWASP ZAP report
+14. Fixes, one commit per issue, and a final ZAP report
+15. Login flow diagram and a "Security decisions" section
 
-## Decisões de segurança
+## Security decisions
 
-A preencher à medida que o projeto avança (porquê argon2id, porquê rotação de refresh tokens, porquê distroless, etc.).
+To be filled in as the project progresses (why argon2id, why refresh token rotation, why distroless, etc.).
 
-## Como correr
+## How to run
 
-A preencher quando existir o docker-compose.
+To be filled in once docker-compose exists.
 
-## Licença
+## License
 
 MIT
