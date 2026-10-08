@@ -63,7 +63,29 @@ To be filled in as the project progresses (why argon2id, why refresh token rotat
 
 ## How to run
 
-To be filled in once docker-compose exists.
+Requirements: Go and Docker.
+
+Start PostgreSQL (listens on 127.0.0.1:5432 only):
+
+```bash
+docker compose up -d
+```
+
+Configuration is read from environment variables (see `internal/config`):
+
+| Variable       | Required | Description                                  |
+| -------------- | -------- | -------------------------------------------- |
+| `PORT`         | no       | HTTP port (default `8080`)                   |
+| `DATABASE_URL` | yes      | PostgreSQL connection string                 |
+| `JWT_SECRET`   | yes      | Signing secret, at least 32 characters       |
+
+Run the tests:
+
+```bash
+go test ./...
+```
+
+Current status: steps 1 and 2 of the plan are in place (`/healthz` endpoint, config loader and docker-compose with PostgreSQL). Wiring the config into the server starts in the next steps.
 
 ## License
 
