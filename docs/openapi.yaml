@@ -1,0 +1,102 @@
+openapi: 3.0.3
+info:
+  title: auth-api
+  version: 1.0.0
+servers:
+  - url: http://api:8080
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+  schemas:
+    Credentials:
+      type: object
+      required: [email, password]
+      properties:
+        email: { type: string, example: scan@example.com }
+        password: { type: string, example: a-long-enough-password }
+    RefreshRequest:
+      type: object
+      required: [refresh_token]
+      properties:
+        refresh_token: { type: string, example: abc }
+    RoleRequest:
+      type: object
+      required: [role]
+      properties:
+        role: { type: string, enum: [user, admin] }
+paths:
+  /healthz:
+    get:
+      responses: { "200": { description: ok } }
+  /auth/register:
+    post:
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/Credentials" }
+      responses:
+        "201": { description: created }
+        "400": { description: invalid input }
+        "409": { description: email already registered }
+        "429": { description: too many requests }
+  /auth/login:
+    post:
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/Credentials" }
+      responses:
+        "200": { description: access and refresh tokens }
+        "401": { description: invalid credentials }
+        "429": { description: too many requests }
+  /auth/refresh:
+    post:
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/RefreshRequest" }
+      responses:
+        "200": { description: new access and refresh tokens }
+        "401": { description: invalid refresh token }
+        "429": { description: too many requests }
+  /auth/logout:
+    post:
+      security: [{ bearerAuth: [] }]
+      responses:
+        "204": { description: logged out }
+        "401": { description: unauthorized }
+  /me:
+    get:
+      security: [{ bearerAuth: [] }]
+      responses:
+        "200": { description: current user }
+        "401": { description: unauthorized }
+  /admin/users:
+    get:
+      security: [{ bearerAuth: [] }]
+      responses:
+        "200": { description: all users }
+        "401": { description: unauthorized }
+        "403": { description: forbidden }
+  /admin/users/{id}/role:
+    patch:
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - { name: id, in: path, required: true, schema: { type: string, format: uuid } }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/RoleRequest" }
+      responses:
+        "200": { description: updated user }
+        "400": { description: invalid input }
+        "401": { description: unauthorized }
+        "403": { description: forbidden }
+        "404": { description: user not found }
