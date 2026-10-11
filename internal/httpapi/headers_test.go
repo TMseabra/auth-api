@@ -16,7 +16,8 @@ func TestSecurityHeadersOnEveryResponse(t *testing.T) {
 		h.ServeHTTP(rec, httptest.NewRequest(http.MethodGet, path, nil))
 
 		for header, want := range map[string]string{
-			"X-Content-Type-Options": "nosniff",
+			"X-Content-Type-Options":       "nosniff",
+			"Cross-Origin-Resource-Policy": "same-origin",
 		} {
 			if got := rec.Header().Get(header); got != want {
 				t.Errorf("%s: %s = %q, want %q", path, header, got, want)
