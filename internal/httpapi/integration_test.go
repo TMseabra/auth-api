@@ -137,6 +137,26 @@ func TestLoginErrorsAreGeneric(t *testing.T) {
 	}
 }
 
+func TestLoginIsRateLimitedPerAccount(t *testing.T) {
+	e := setup(t)
+	e.register("alice@example.com")
+
+	bad := map[string]string{"email": "alice@example.com", "password": "wrong-password-123"}
+	for i := 0; i < 5; i++ {
+		if status, _ := e.do("POST", "/auth/login", "", bad); status != http.StatusUnauthorized {
+			t.Fatalf("attempt %d: status %d, want 401", i+1, status)
+		}
+	}
+	if status, _ := e.do("POST", "/auth/login", "", bad); status != http.StatusTooManyRequests {
+		t.Errorf("attempt 6: status %d, want 429", status)
+	}
+	// The correct password is throttled too, otherwise guessing is not slowed down.
+	good := map[string]string{"email": "alice@example.com", "password": password}
+	if status, _ := e.do("POST", "/auth/login", "", good); status != http.StatusTooManyRequests {
+		t.Errorf("correct password while throttled: status %d, want 429", status)
+	}
+}
+
 func TestMe(t *testing.T) {
 	e := setup(t)
 	e.register("alice@example.com")

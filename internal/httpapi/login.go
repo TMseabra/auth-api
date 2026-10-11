@@ -44,6 +44,11 @@ func (s *Server) login(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	if !s.loginEmail.allow(email) {
+		tooManyRequests(w)
+		return
+	}
+
 	user, err := s.store.UserByEmail(r.Context(), email)
 	if errors.Is(err, store.ErrNotFound) {
 		burnPasswordHash(in.Password)

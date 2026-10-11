@@ -6,6 +6,7 @@ import (
 	"io"
 	"log"
 	"net/http"
+	"time"
 
 	"github.com/TMseabra/auth-api/internal/auth"
 	"github.com/TMseabra/auth-api/internal/store"
@@ -14,18 +15,26 @@ import (
 type Server struct {
 	store  *store.Store
 	tokens *auth.TokenIssuer
+
+	authIP     *limiter // register, login and refresh, per client IP
+	loginEmail *limiter // login attempts per account, across all IPs
 }
 
 func New(s *store.Store, tokens *auth.TokenIssuer) *Server {
-	return &Server{store: s, tokens: tokens}
+	return &Server{
+		store:      s,
+		tokens:     tokens,
+		authIP:     newLimiter(6*time.Second, 10), // 10 burst, then 10/minute
+		loginEmail: newLimiter(30*time.Second, 5), // 5 burst, then 2/minute
+	}
 }
 
 func (s *Server) Routes() http.Handler {
 	mux := http.NewServeMux()
 	mux.HandleFunc("GET /healthz", s.healthz)
-	mux.HandleFunc("POST /auth/register", s.register)
-	mux.HandleFunc("POST /auth/login", s.login)
-	mux.HandleFunc("POST /auth/refresh", s.refresh)
+	mux.HandleFunc("POST /auth/register", s.limitByIP(s.authIP, s.register))
+	mux.HandleFunc("POST /auth/login", s.limitByIP(s.authIP, s.login))
+	mux.HandleFunc("POST /auth/refresh", s.limitByIP(s.authIP, s.refresh))
 	mux.HandleFunc("POST /auth/logout", s.requireAuth(s.logout))
 	mux.HandleFunc("GET /me", s.requireAuth(s.me))
 	mux.HandleFunc("GET /admin/users", s.requireRole("admin", s.listUsers))
