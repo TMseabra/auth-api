@@ -29,7 +29,7 @@ jobs:
       TEST_DATABASE_URL: postgres://auth:auth_ci_password@localhost:5432/auth_test?sslmode=disable
     steps:
       - uses: actions/checkout@v7
-      - uses: actions/setup-go@v5
+      - uses: actions/setup-go@v7
         with:
           go-version-file: go.mod
       - run: go vet ./...
