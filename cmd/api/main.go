@@ -9,6 +9,7 @@ import (
 	"syscall"
 	"time"
 
+	"github.com/TMseabra/auth-api/internal/auth"
 	"github.com/TMseabra/auth-api/internal/config"
 	"github.com/TMseabra/auth-api/internal/db"
 	"github.com/TMseabra/auth-api/internal/httpapi"
@@ -35,7 +36,7 @@ func main() {
 
 	srv := &http.Server{
 		Addr:              ":" + cfg.Port,
-		Handler:           httpapi.New(store.New(pool)).Routes(),
+		Handler:           httpapi.New(store.New(pool), auth.NewTokenIssuer(cfg.JWTSecret)).Routes(),
 		ReadHeaderTimeout: 5 * time.Second,
 		ReadTimeout:       10 * time.Second,
 		WriteTimeout:      10 * time.Second,

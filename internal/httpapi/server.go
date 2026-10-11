@@ -7,21 +7,24 @@ import (
 	"log"
 	"net/http"
 
+	"github.com/TMseabra/auth-api/internal/auth"
 	"github.com/TMseabra/auth-api/internal/store"
 )
 
 type Server struct {
-	store *store.Store
+	store  *store.Store
+	tokens *auth.TokenIssuer
 }
 
-func New(s *store.Store) *Server {
-	return &Server{store: s}
+func New(s *store.Store, tokens *auth.TokenIssuer) *Server {
+	return &Server{store: s, tokens: tokens}
 }
 
 func (s *Server) Routes() http.Handler {
 	mux := http.NewServeMux()
 	mux.HandleFunc("GET /healthz", s.healthz)
 	mux.HandleFunc("POST /auth/register", s.register)
+	mux.HandleFunc("POST /auth/login", s.login)
 	return mux
 }
 
