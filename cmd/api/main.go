@@ -1,10 +1,11 @@
 package main
 
 import (
-	"encoding/json"
 	"log"
 	"net/http"
 	"time"
+
+	"github.com/TMseabra/auth-api/internal/config"
 )
 
 func newMux() *http.ServeMux {
@@ -15,12 +16,17 @@ func newMux() *http.ServeMux {
 
 func healthz(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(map[string]string{"status": "ok"})
+	w.Write([]byte(`{"status":"ok"}` + "\n"))
 }
 
 func main() {
+	cfg, err := config.Load()
+	if err != nil {
+		log.Fatal(err)
+	}
+
 	srv := &http.Server{
-		Addr:              ":8080",
+		Addr:              ":" + cfg.Port,
 		Handler:           newMux(),
 		ReadHeaderTimeout: 5 * time.Second,
 	}
