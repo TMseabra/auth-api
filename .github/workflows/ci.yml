@@ -28,7 +28,7 @@ jobs:
     env:
       TEST_DATABASE_URL: postgres://auth:auth_ci_password@localhost:5432/auth_test?sslmode=disable
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - uses: actions/setup-go@v5
         with:
           go-version-file: go.mod
@@ -39,7 +39,7 @@ jobs:
     runs-on: ubuntu-latest
     needs: test
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - name: Build image
         run: docker build -t auth-api:ci .
       - name: Trivy scan (fails on HIGH and CRITICAL)
