@@ -25,6 +25,7 @@ func (s *Server) Routes() http.Handler {
 	mux.HandleFunc("GET /healthz", s.healthz)
 	mux.HandleFunc("POST /auth/register", s.register)
 	mux.HandleFunc("POST /auth/login", s.login)
+	mux.HandleFunc("POST /auth/refresh", s.refresh)
 	return mux
 }
 
