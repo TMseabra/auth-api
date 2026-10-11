@@ -15,5 +15,23 @@ services:
       timeout: 3s
       retries: 10
 
+  # Start with: docker compose --profile app up --build
+  api:
+    profiles: ["app"]
+    build: .
+    environment:
+      PORT: "8080"
+      DATABASE_URL: postgres://auth:${POSTGRES_PASSWORD:-auth_dev_password}@db:5432/auth?sslmode=disable
+      JWT_SECRET: ${JWT_SECRET:?set JWT_SECRET (at least 32 characters)}
+    ports:
+      - "127.0.0.1:8080:8080"
+    depends_on:
+      db:
+        condition: service_healthy
+    read_only: true
+    cap_drop: [ALL]
+    security_opt:
+      - no-new-privileges:true
+
 volumes:
   pgdata:

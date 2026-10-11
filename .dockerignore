@@ -1,0 +1,8 @@
+.git
+.github
+.env
+.env.local
+.neon
+node_modules
+*.md
+docs
