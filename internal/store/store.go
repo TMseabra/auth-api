@@ -51,6 +51,29 @@ func (s *Store) CreateUser(ctx context.Context, email, passwordHash string) (Use
 	return u, err
 }
 
+func (s *Store) ListUsers(ctx context.Context) ([]User, error) {
+	rows, err := s.pool.Query(ctx, `SELECT `+userColumns+` FROM users ORDER BY created_at, id`)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	users := []User{}
+	for rows.Next() {
+		var u User
+		if err := rows.Scan(&u.ID, &u.Email, &u.Role, &u.CreatedAt, &u.PasswordHash); err != nil {
+			return nil, err
+		}
+		users = append(users, u)
+	}
+	return users, rows.Err()
+}
+
+func (s *Store) SetUserRole(ctx context.Context, id, role string) (User, error) {
+	return scanUser(s.pool.QueryRow(ctx,
+		`UPDATE users SET role = $2 WHERE id = $1 RETURNING `+userColumns, id, role))
+}
+
 func (s *Store) UserByEmail(ctx context.Context, email string) (User, error) {
 	return scanUser(s.pool.QueryRow(ctx,
 		`SELECT `+userColumns+` FROM users WHERE lower(email) = lower($1)`, email))

@@ -26,6 +26,10 @@ func (s *Server) Routes() http.Handler {
 	mux.HandleFunc("POST /auth/register", s.register)
 	mux.HandleFunc("POST /auth/login", s.login)
 	mux.HandleFunc("POST /auth/refresh", s.refresh)
+	mux.HandleFunc("POST /auth/logout", s.requireAuth(s.logout))
+	mux.HandleFunc("GET /me", s.requireAuth(s.me))
+	mux.HandleFunc("GET /admin/users", s.requireRole("admin", s.listUsers))
+	mux.HandleFunc("PATCH /admin/users/{id}/role", s.requireRole("admin", s.setRole))
 	return mux
 }
 
