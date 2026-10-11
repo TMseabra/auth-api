@@ -39,7 +39,7 @@ func (s *Server) Routes() http.Handler {
 	mux.HandleFunc("GET /me", s.requireAuth(s.me))
 	mux.HandleFunc("GET /admin/users", s.requireRole("admin", s.listUsers))
 	mux.HandleFunc("PATCH /admin/users/{id}/role", s.requireRole("admin", s.setRole))
-	return mux
+	return securityHeaders(mux)
 }
 
 func (s *Server) healthz(w http.ResponseWriter, r *http.Request) {
