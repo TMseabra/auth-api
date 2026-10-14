@@ -38,3 +38,15 @@ func TestValidatePassword(t *testing.T) {
 		t.Error("129-char password accepted")
 	}
 }
+
+func TestNormalizeEmailRejectsOversizedAndOddInput(t *testing.T) {
+	long := make([]byte, 250)
+	for i := range long {
+		long[i] = 'a'
+	}
+	for _, in := range []string{string(long) + "@example.com", "a b@example.com", "<a@b.co>", "a@@b.co"} {
+		if got, ok := normalizeEmail(in); ok {
+			t.Errorf("normalizeEmail(%q) accepted as %q", in, got)
+		}
+	}
+}
