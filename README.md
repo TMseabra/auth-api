@@ -194,6 +194,13 @@ export TEST_DATABASE_URL='postgres://auth:auth_dev_password@localhost:5432/auth_
 go test ./... -p 1
 ```
 
+## Troubleshooting
+
+- `JWT_SECRET is required and must be at least 32 characters`: set a longer secret, for example `openssl rand -hex 32`.
+- `connection refused` on port 5432: PostgreSQL is not running. Start Docker and run `docker compose up -d --wait`.
+- Integration tests are reported as skipped: `TEST_DATABASE_URL` is not set (see "How to run").
+- `429 too many requests` while testing by hand: the login limiter is working. Wait a minute or restart the API, since the limiter state is in memory.
+
 ## License
 
 MIT
