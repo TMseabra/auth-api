@@ -6,6 +6,7 @@ services:
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-auth_dev_password}
       POSTGRES_DB: auth
     ports:
+      # Bound to localhost only: the database must not be reachable from the network.
       - "127.0.0.1:5432:5432"
     volumes:
       - pgdata:/var/lib/postgresql/data
