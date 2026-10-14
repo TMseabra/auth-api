@@ -1,5 +1,7 @@
 # auth-api
 
+[![CI](https://github.com/TMseabra/auth-api/actions/workflows/ci.yml/badge.svg)](https://github.com/TMseabra/auth-api/actions/workflows/ci.yml)
+
 Secure authentication API in Go: registration, login, JWT with refresh tokens and roles (`user` and `admin`). First built, then attacked and hardened.
 
 > Status: all 15 steps of the plan are done. Portfolio project, not production-reviewed.
