@@ -70,3 +70,22 @@ func TestAccessTokenRejectsNoneAlgorithm(t *testing.T) {
 		t.Fatal("alg=none token accepted")
 	}
 }
+
+func TestAccessTokenRejectsWrongIssuer(t *testing.T) {
+	iss := NewTokenIssuer(testSecret)
+	forged := jwt.NewWithClaims(jwt.SigningMethodHS256, Claims{
+		Role: "user",
+		RegisteredClaims: jwt.RegisteredClaims{
+			Issuer:    "someone-else",
+			Subject:   "u",
+			ExpiresAt: jwt.NewNumericDate(time.Now().Add(time.Hour)),
+		},
+	})
+	raw, err := forged.SignedString([]byte(testSecret))
+	if err != nil {
+		t.Fatal(err)
+	}
+	if _, err := iss.ParseAccess(raw); err == nil {
+		t.Fatal("token with a foreign issuer accepted")
+	}
+}
