@@ -195,6 +195,8 @@ export TEST_DATABASE_URL='postgres://auth:auth_dev_password@localhost:5432/auth_
 go test ./... -p 1
 ```
 
+Shortcuts are available through the Makefile: `make db`, `make run`, `make test`, `make fmt` and `make vet`.
+
 ## Troubleshooting
 
 - `JWT_SECRET is required and must be at least 32 characters`: set a longer secret, for example `openssl rand -hex 32`.
