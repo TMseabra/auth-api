@@ -140,6 +140,7 @@ ZAP went from 2 warnings to 0 (119 passing checks). Limits of that scan: it is a
 - Rate-limit state is in memory, so it is per process.
 - No email verification, password reset or account lockout notifications.
 - The JWT secret is a shared HS256 secret; rotating it logs everyone out.
+- Expired and revoked refresh tokens stay in the database; there is no cleanup job yet.
 
 ## How to run
 
