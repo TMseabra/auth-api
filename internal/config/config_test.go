@@ -35,3 +35,17 @@ func TestLoad(t *testing.T) {
 		}
 	})
 }
+
+func TestLoadUsesPortFromEnvironment(t *testing.T) {
+	t.Setenv("PORT", "9090")
+	t.Setenv("DATABASE_URL", "postgres://x")
+	t.Setenv("JWT_SECRET", goodSecret)
+
+	cfg, err := Load()
+	if err != nil {
+		t.Fatal(err)
+	}
+	if cfg.Port != "9090" {
+		t.Fatalf("port = %q, want 9090", cfg.Port)
+	}
+}
