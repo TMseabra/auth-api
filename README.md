@@ -66,6 +66,19 @@ sequenceDiagram
     Note over C,A: Presenting an already-used refresh token revokes<br/>every refresh token of that user (reuse detection)
 ```
 
+## Project layout
+
+```
+cmd/api/           entry point (config, migrations, HTTP server, graceful shutdown)
+internal/auth/     argon2id passwords, access JWTs, refresh token generation
+internal/config/   environment configuration
+internal/db/       connection pool and embedded migrations runner
+internal/httpapi/  handlers, middleware, rate limiter, security headers
+internal/store/    SQL queries for users and refresh tokens
+migrations/        versioned SQL migrations
+docs/              OpenAPI spec and security reports
+```
+
 ## Plan
 
 ### Part 1: Build
