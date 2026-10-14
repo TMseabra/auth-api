@@ -34,3 +34,17 @@ func TestVerifyRejectsMalformedHash(t *testing.T) {
 		}
 	}
 }
+
+func TestHashHandlesUnicodePasswords(t *testing.T) {
+	const pw = "pässwörd-日本語-🔐-long-enough"
+	hash, err := HashPassword(pw)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if ok, err := VerifyPassword(pw, hash); err != nil || !ok {
+		t.Fatalf("unicode password did not verify: ok=%v err=%v", ok, err)
+	}
+	if ok, _ := VerifyPassword("passwörd-日本語-🔐-long-enough", hash); ok {
+		t.Fatal("different password verified")
+	}
+}
