@@ -22,3 +22,17 @@ func TestRefreshTokenHashing(t *testing.T) {
 		t.Fatal("tokens must be unique")
 	}
 }
+
+func TestRefreshTokenIsURLSafe(t *testing.T) {
+	for i := 0; i < 50; i++ {
+		raw, _, err := NewRefreshToken()
+		if err != nil {
+			t.Fatal(err)
+		}
+		for _, r := range raw {
+			if r == '+' || r == '/' || r == '=' {
+				t.Fatalf("token %q contains a non URL-safe character", raw)
+			}
+		}
+	}
+}
