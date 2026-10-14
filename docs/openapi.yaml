@@ -2,6 +2,7 @@ openapi: 3.0.3
 info:
   title: auth-api
   version: 1.0.0
+  description: Authentication API with JWT access tokens, rotating refresh tokens and user/admin roles.
 servers:
   - url: http://api:8080
 components:
