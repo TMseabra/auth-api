@@ -25,3 +25,16 @@ func TestSecurityHeadersOnEveryResponse(t *testing.T) {
 		}
 	}
 }
+
+func TestSecurityHeadersOnPostAndErrors(t *testing.T) {
+	s, _ := newTestServer()
+	rec := httptest.NewRecorder()
+	s.Routes().ServeHTTP(rec, httptest.NewRequest(http.MethodPost, "/auth/logout", nil))
+
+	if rec.Code != http.StatusUnauthorized {
+		t.Fatalf("status = %d, want 401", rec.Code)
+	}
+	if got := rec.Header().Get("X-Content-Type-Options"); got != "nosniff" {
+		t.Errorf("X-Content-Type-Options = %q on an error response", got)
+	}
+}
