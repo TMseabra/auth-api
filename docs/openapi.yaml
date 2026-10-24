@@ -31,6 +31,7 @@ components:
 paths:
   /healthz:
     get:
+      summary: Liveness check
       responses: { "200": { description: ok } }
   /auth/register:
     post:
@@ -74,6 +75,7 @@ paths:
         "401": { description: unauthorized }
   /me:
     get:
+      summary: Current user
       security: [{ bearerAuth: [] }]
       responses:
         "200": { description: current user }
