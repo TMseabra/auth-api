@@ -36,3 +36,29 @@ func TestDecodeJSONRejectsUnknownFieldsAndTrailingData(t *testing.T) {
 		}
 	}
 }
+
+func TestDecodeJSONAcceptsValidBodyAndRejectsEmpty(t *testing.T) {
+	rec := httptest.NewRecorder()
+	req := httptest.NewRequest(http.MethodPost, "/", strings.NewReader(`{"email":"a@b.co","password":"x"}`))
+	var in credentials
+	if !decodeJSON(rec, req, &in) || in.Email != "a@b.co" {
+		t.Fatalf("valid body rejected: %+v", in)
+	}
+
+	rec = httptest.NewRecorder()
+	req = httptest.NewRequest(http.MethodPost, "/", strings.NewReader(``))
+	if decodeJSON(rec, req, &in) {
+		t.Fatal("empty body accepted")
+	}
+}
+
+func TestWriteErrorUsesJSON(t *testing.T) {
+	rec := httptest.NewRecorder()
+	writeError(rec, http.StatusTeapot, "boom")
+	if rec.Code != http.StatusTeapot || rec.Header().Get("Content-Type") != "application/json" {
+		t.Fatalf("status %d, content type %q", rec.Code, rec.Header().Get("Content-Type"))
+	}
+	if !strings.Contains(rec.Body.String(), `"error":"boom"`) {
+		t.Fatalf("body = %s", rec.Body.String())
+	}
+}
