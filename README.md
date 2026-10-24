@@ -10,6 +10,7 @@ Secure authentication API in Go: registration, login, JWT with refresh tokens an
 
 Build a complete identity service and then secure it, documenting every security decision. The story of the project is "I built it, then I secured it".
 
+
 ## Stack
 
 - Go (net/http)
@@ -197,12 +198,20 @@ go test ./... -p 1
 
 Shortcuts are available through the Makefile: `make db`, `make run`, `make test`, `make fmt` and `make vet`.
 
+## Roadmap
+
+Ideas that are not part of the 15-step plan: a cleanup job for expired refresh tokens, email verification and password reset, asymmetric JWT signing with key rotation, and a shared (Redis) rate limiter for multi-replica deployments.
+
 ## Troubleshooting
 
 - `JWT_SECRET is required and must be at least 32 characters`: set a longer secret, for example `openssl rand -hex 32`.
 - `connection refused` on port 5432: PostgreSQL is not running. Start Docker and run `docker compose up -d --wait`.
 - Integration tests are reported as skipped: `TEST_DATABASE_URL` is not set (see "How to run").
 - `429 too many requests` while testing by hand: the login limiter is working. Wait a minute or restart the API, since the limiter state is in memory.
+
+## Contributing and security
+
+See [CONTRIBUTING.md](CONTRIBUTING.md) and [SECURITY.md](SECURITY.md).
 
 ## License
 
