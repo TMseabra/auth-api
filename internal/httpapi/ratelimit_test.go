@@ -75,3 +75,26 @@ func TestLimitByIPReturns429WithRetryAfter(t *testing.T) {
 		t.Fatalf("other IP blocked: status %d", rec.Code)
 	}
 }
+
+func TestClientIPHandlesAddressWithoutPort(t *testing.T) {
+	req := httptest.NewRequest(http.MethodGet, "/", nil)
+	req.RemoteAddr = "192.0.2.7"
+	if got := clientIP(req); got != "192.0.2.7" {
+		t.Fatalf("clientIP = %q, want 192.0.2.7", got)
+	}
+	req.RemoteAddr = "192.0.2.7:5555"
+	if got := clientIP(req); got != "192.0.2.7" {
+		t.Fatalf("clientIP = %q, want 192.0.2.7", got)
+	}
+}
+
+func TestTooManyRequestsBodyIsJSON(t *testing.T) {
+	rec := httptest.NewRecorder()
+	tooManyRequests(rec)
+	if rec.Code != http.StatusTooManyRequests {
+		t.Fatalf("status = %d", rec.Code)
+	}
+	if ct := rec.Header().Get("Content-Type"); ct != "application/json" {
+		t.Fatalf("Content-Type = %q", ct)
+	}
+}
