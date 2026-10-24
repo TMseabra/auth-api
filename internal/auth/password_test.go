@@ -48,3 +48,16 @@ func TestHashHandlesUnicodePasswords(t *testing.T) {
 		t.Fatal("different password verified")
 	}
 }
+
+func TestVerifyRejectsTruncatedHashParts(t *testing.T) {
+	hash, _ := HashPassword("some password")
+	for _, bad := range []string{
+		hash[:len(hash)-5] + "!!!!!", // invalid base64 in the key
+		"$argon2id$v=19$m=65536,t=3,p=2$!!!$YQ",
+		"$argon2id$v=18$m=65536,t=3,p=2$YQ$YQ",
+	} {
+		if _, err := VerifyPassword("some password", bad); err == nil {
+			t.Errorf("expected error for %q", bad)
+		}
+	}
+}
