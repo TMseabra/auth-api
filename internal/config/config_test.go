@@ -49,3 +49,16 @@ func TestLoadUsesPortFromEnvironment(t *testing.T) {
 		t.Fatalf("port = %q, want 9090", cfg.Port)
 	}
 }
+
+func TestLoadJWTSecretLengthBoundary(t *testing.T) {
+	t.Setenv("DATABASE_URL", "postgres://x")
+
+	t.Setenv("JWT_SECRET", goodSecret[:31])
+	if _, err := Load(); err == nil {
+		t.Error("31-character secret accepted")
+	}
+	t.Setenv("JWT_SECRET", goodSecret)
+	if _, err := Load(); err != nil {
+		t.Errorf("32-character secret rejected: %v", err)
+	}
+}
