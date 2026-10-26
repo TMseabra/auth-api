@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"os"
+	"strings"
 	"testing"
 
 	"github.com/TMseabra/auth-api/internal/auth"
@@ -263,5 +264,18 @@ func TestAdminCannotChangeOwnRole(t *testing.T) {
 	status, body := e.do("PATCH", "/admin/users/"+admin["id"].(string)+"/role", token, map[string]string{"role": "user"})
 	if status != http.StatusBadRequest {
 		t.Fatalf("status %d body %v, want 400", status, body)
+	}
+}
+
+func TestRefreshRejectsOversizedAndEmptyTokens(t *testing.T) {
+	e := setup(t)
+
+	for name, token := range map[string]string{
+		"empty":     "",
+		"oversized": strings.Repeat("a", 300),
+	} {
+		if status, _ := e.do("POST", "/auth/refresh", "", map[string]string{"refresh_token": token}); status != http.StatusUnauthorized {
+			t.Errorf("%s token: status %d, want 401", name, status)
+		}
 	}
 }
