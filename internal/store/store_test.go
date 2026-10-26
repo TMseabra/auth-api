@@ -42,3 +42,26 @@ func TestCreateUserEmailIsUniqueIgnoringCase(t *testing.T) {
 		t.Fatalf("err = %v, want ErrEmailTaken", err)
 	}
 }
+
+func TestListUsersReturnsEveryUser(t *testing.T) {
+	s := setup(t)
+	ctx := context.Background()
+
+	for _, email := range []string{"a@example.com", "b@example.com", "c@example.com"} {
+		if _, err := s.CreateUser(ctx, email, "hash"); err != nil {
+			t.Fatal(err)
+		}
+	}
+	users, err := s.ListUsers(ctx)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(users) != 3 {
+		t.Fatalf("got %d users, want 3", len(users))
+	}
+	for _, u := range users {
+		if u.Role != "user" {
+			t.Errorf("%s has role %q, want the default role", u.Email, u.Role)
+		}
+	}
+}
