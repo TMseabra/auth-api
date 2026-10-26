@@ -10,7 +10,6 @@ Secure authentication API in Go: registration, login, JWT with refresh tokens an
 
 Build a complete identity service and then secure it, documenting every security decision. The story of the project is "I built it, then I secured it".
 
-
 ## Stack
 
 - Go (net/http)
