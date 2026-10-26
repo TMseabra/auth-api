@@ -253,3 +253,15 @@ func TestAdminRoutes(t *testing.T) {
 		t.Errorf("unknown user: status %d, want 404", status)
 	}
 }
+
+func TestAdminCannotChangeOwnRole(t *testing.T) {
+	e := setup(t)
+	admin := e.register("admin@example.com")
+	e.makeAdmin("admin@example.com")
+	token := e.login("admin@example.com")["access_token"].(string)
+
+	status, body := e.do("PATCH", "/admin/users/"+admin["id"].(string)+"/role", token, map[string]string{"role": "user"})
+	if status != http.StatusBadRequest {
+		t.Fatalf("status %d body %v, want 400", status, body)
+	}
+}
