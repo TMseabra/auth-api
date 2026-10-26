@@ -84,3 +84,31 @@ func TestRotateRefreshTokenRejectsExpiredToken(t *testing.T) {
 		t.Fatalf("err = %v, want ErrTokenInvalid", err)
 	}
 }
+
+func TestRotateRefreshTokenDetectsReuse(t *testing.T) {
+	s := setup(t)
+	ctx := context.Background()
+	user, err := s.CreateUser(ctx, "a@example.com", "hash")
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	first := []byte("first-token-hash-32-bytes-long-0")
+	second := []byte("second-token-hash-32-bytes-long-")
+	third := []byte("third-token-hash-32-bytes-long-0")
+	if err := s.CreateRefreshToken(ctx, user.ID, first, time.Now().Add(time.Hour)); err != nil {
+		t.Fatal(err)
+	}
+
+	got, err := s.RotateRefreshToken(ctx, first, second, time.Now().Add(time.Hour))
+	if err != nil || got != user.ID {
+		t.Fatalf("first rotation: user %q err %v", got, err)
+	}
+	if _, err := s.RotateRefreshToken(ctx, first, third, time.Now().Add(time.Hour)); !errors.Is(err, ErrTokenReuse) {
+		t.Fatalf("replay: err = %v, want ErrTokenReuse", err)
+	}
+	// Reuse revokes the whole family, including the token issued by the first rotation.
+	if _, err := s.RotateRefreshToken(ctx, second, third, time.Now().Add(time.Hour)); !errors.Is(err, ErrTokenReuse) {
+		t.Fatalf("second token after reuse: err = %v, want ErrTokenReuse", err)
+	}
+}
