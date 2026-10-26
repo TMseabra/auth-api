@@ -1,0 +1,44 @@
+package store
+
+import (
+	"context"
+	"errors"
+	"os"
+	"testing"
+
+	"github.com/TMseabra/auth-api/internal/db"
+)
+
+// setup returns a store backed by TEST_DATABASE_URL with all data removed.
+// The test is skipped when the variable is not set.
+func setup(t *testing.T) *Store {
+	t.Helper()
+	url := os.Getenv("TEST_DATABASE_URL")
+	if url == "" {
+		t.Skip("TEST_DATABASE_URL not set")
+	}
+	if err := db.Migrate(url); err != nil {
+		t.Fatal(err)
+	}
+	pool, err := db.Connect(context.Background(), url)
+	if err != nil {
+		t.Fatal(err)
+	}
+	t.Cleanup(pool.Close)
+	if _, err := pool.Exec(context.Background(), `TRUNCATE users CASCADE`); err != nil {
+		t.Fatal(err)
+	}
+	return New(pool)
+}
+
+func TestCreateUserEmailIsUniqueIgnoringCase(t *testing.T) {
+	s := setup(t)
+	ctx := context.Background()
+
+	if _, err := s.CreateUser(ctx, "a@example.com", "hash"); err != nil {
+		t.Fatal(err)
+	}
+	if _, err := s.CreateUser(ctx, "A@Example.COM", "hash"); !errors.Is(err, ErrEmailTaken) {
+		t.Fatalf("err = %v, want ErrEmailTaken", err)
+	}
+}
