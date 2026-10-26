@@ -5,6 +5,7 @@ import (
 	"errors"
 	"os"
 	"testing"
+	"time"
 
 	"github.com/TMseabra/auth-api/internal/db"
 )
@@ -63,5 +64,23 @@ func TestListUsersReturnsEveryUser(t *testing.T) {
 		if u.Role != "user" {
 			t.Errorf("%s has role %q, want the default role", u.Email, u.Role)
 		}
+	}
+}
+
+func TestRotateRefreshTokenRejectsExpiredToken(t *testing.T) {
+	s := setup(t)
+	ctx := context.Background()
+	user, err := s.CreateUser(ctx, "a@example.com", "hash")
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	old := []byte("old-token-hash-32-bytes-long-000")
+	if err := s.CreateRefreshToken(ctx, user.ID, old, time.Now().Add(-time.Minute)); err != nil {
+		t.Fatal(err)
+	}
+	_, err = s.RotateRefreshToken(ctx, old, []byte("new-token-hash-32-bytes-long-000"), time.Now().Add(time.Hour))
+	if !errors.Is(err, ErrTokenInvalid) {
+		t.Fatalf("err = %v, want ErrTokenInvalid", err)
 	}
 }
